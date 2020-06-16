@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker.io - Item Locker
 // @namespace    http://tampermonkey.net/
-// @version      0.1.1
+// @version      0.1.2
 // @description  Lock items in your inventory
 // @author       Lemons
 // @match        *://krunker.io/*
@@ -60,7 +60,7 @@ var skins;
 
 function getSkins(node) {
     var regex = /\w+\.exports\.skins=(\[[^\]]+\])/;
-    var str = node.innerText;
+    var str = node.textContent;
 
     var match = str.match(regex)[1];
 
@@ -219,7 +219,7 @@ function disableListItems(node) {
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
-            if (location.pathname === '/social.html' && node instanceof HTMLScriptElement && node.innerText.length > 1e5) {
+            if (location.pathname === '/social.html' && node instanceof HTMLScriptElement && node.textContent.length > 1e4) {
                 getSkins(node);
             } else if (node.className === 'marketCard' && node.querySelector('.cardEst')) {
                 addGUI(node);
