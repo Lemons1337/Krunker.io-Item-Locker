@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker.io - Item Locker
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.1.1
 // @description  Lock items in your inventory
 // @author       Lemons
 // @match        *://krunker.io/*
@@ -162,7 +162,7 @@ function disableTrade(node) {
 
         var index = skins.findIndex(s => s.name === skinName);
 
-        if (index > -1) {
+        if (elem.id.startsWith('trd_0_') && index > -1) {
             var lockIndex = lockedItems.indexOf(index);
 
             if (lockIndex > -1) {
