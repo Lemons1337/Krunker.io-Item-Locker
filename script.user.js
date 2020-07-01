@@ -25,8 +25,7 @@ function addStyle(str, url) {
 
 addStyle('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css', true);
 
-addStyle(`
-.cardActions {
+addStyle(`.cardActions {
 	position: absolute;
 	opacity: 0;
 	left: 0;
@@ -65,35 +64,6 @@ addStyle(`
 .marketCard:hover .cardActions {
 	z-index: 9999999999;
 	opacity: 1
-}
-
-.lockItemBtn {
-    font-size: 12px;
-    color: #fff;
-    background-color: #e8da00;
-    padding: 5px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    cursor: pointer;
-    pointer-events: auto;
-    z-index: 9999999;
-    position: absolute;
-    text-align: center;
-    border-radius: 4px;
-    text-shadow: none;
-    top: 204px;
-    right: 32px;
-}
-
-#itemLocked {
-    border: 2px solid red;
-    padding: 3px;
-    padding-bottom: 0px;
-    padding-top: 0px;
-}
-
-.lockItemBtn:hover {
-    background-color: yellow;
 }`);
 
 var lockedItems = JSON.parse(localStorage.lockedItems || '[]');
