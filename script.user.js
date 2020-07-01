@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker.io - Item Locker
 // @namespace    http://tampermonkey.net/
-// @version      0.1.3
+// @version      0.1.4
 // @description  Lock items in your inventory
 // @author       Lemons
 // @match        *://krunker.io/*
@@ -80,6 +80,7 @@ function getSkins(node) {
 }
 
 function addGUI(node) {
+    console.log(node);
     var elem = node.querySelector('.cardActions');
 
     var itemId = elem.lastElementChild.onclick.toString().match(/itemsales&i=(\d+)/)[1] | 0;
@@ -92,6 +93,17 @@ function addGUI(node) {
 
     if (index > -1) {
         button.innerText = 'Unlock';
+
+        var icon = document.createElement('i');
+        icon.setAttribute('style', 'z-index: 1; color: white; position: absolute; left: 65px; top: 40px; font-size: 150px;');
+        icon.setAttribute('class', 'itemLocked fa fa-lock fa-5x');
+
+        var img = node.querySelector('img');
+        img.style['pointer-events'] = 'none';
+
+        node.insertBefore(icon, node.firstChild);
+
+        node.style.filter = 'grayscale(100%)';
     } else {
         button.innerText = 'Lock';
     }
@@ -107,9 +119,27 @@ function addGUI(node) {
         if (index > -1) {
             button.innerText = 'Lock';
             lockedItems.splice(index, 1);
+
+            var elem = node.querySelector('.itemLocked');
+
+            if (elem) {
+                elem.remove();
+
+                node.style.filter = 'unset';
+            }
         } else {
             button.innerText = 'Unlock';
             lockedItems.push(itemId);
+
+            var icon = document.createElement('i');
+            icon.setAttribute('style', 'z-index: 1; color: white; position: absolute; left: 65px; top: 40px; font-size: 150px;');
+            icon.setAttribute('class', 'itemLocked fa fa-lock fa-5x');
+
+            var img = node.querySelector('img');
+            img.style['pointer-events'] = 'none';
+
+            node.insertBefore(icon, node.firstChild);
+            node.style.filter = 'grayscale(100%)';
         }
 
         localStorage.lockedItems = JSON.stringify(lockedItems);
@@ -231,6 +261,10 @@ function disableListItems(node) {
     }
 }
 
+function disableQuickSell(node) {
+    console.log(node);
+}
+
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
@@ -246,6 +280,8 @@ const observer = new MutationObserver(mutations => {
                 disableTrade(node);
             } else if (node.querySelector && node.querySelector('#postSaleBtn')) {
                 disableListItems(node);
+            } else if (node.className === 'confQSPop') {
+                disableQuickSell(node);
             }
         });
     });
