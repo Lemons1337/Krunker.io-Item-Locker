@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker.io - Item Locker
 // @namespace    http://tampermonkey.net/
-// @version      0.1.2
+// @version      0.1.3
 // @description  Lock items in your inventory
 // @author       Lemons
 // @match        *://krunker.io/*
@@ -25,7 +25,49 @@ function addStyle(str, url) {
 
 addStyle('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css', true);
 
-addStyle(`.lockItemBtn {
+addStyle(`
+.cardActions {
+	position: absolute;
+	opacity: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, .85);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: rgba(255, 255, 255, .5);
+	font-size: 12px;
+	transition: .2s opacity
+}
+
+.cardAction {
+	font-size: 19px;
+	margin: 10px;
+	color: rgba(255, 255, 255, .85)
+}
+
+.cardAction:hover {
+	color: rgba(255, 255, 255);
+	text-decoration: underline
+}
+
+.cardActionSep {
+	width: 100px;
+	height: 1px;
+	background: #fff;
+	opacity: .5
+}
+
+.marketCard:active .cardActions,
+.marketCard:hover .cardActions {
+	z-index: 9999999999;
+	opacity: 1
+}
+
+.lockItemBtn {
     font-size: 12px;
     color: #fff;
     background-color: #e8da00;
@@ -68,40 +110,43 @@ function getSkins(node) {
 }
 
 function addGUI(node) {
-    var div = document.createElement('div');
+    var elem = node.querySelector('.cardActions');
 
-    var itemId = node.lastElementChild.onclick.toString().match(/itemsales&i=(\d+)/)[1] | 0;
+    var itemId = elem.lastElementChild.onclick.toString().match(/itemsales&i=(\d+)/)[1] | 0;
     var index = lockedItems.findIndex(i => i == itemId);
 
-    div.setAttribute('class', 'lockItemBtn');
-    div.setAttribute('onmouseenter', "SOUND.play('tick_0',0.1)");
+    var button = document.createElement('a');
+
+    button.setAttribute('class', 'cardAction');
+    button.setAttribute('onmouseenter', "SOUND.play('tick_0',0.1)");
 
     if (index > -1) {
-        div.setAttribute('id', 'itemLocked');
-        div.innerHTML = '<i style="color: white; position: relative; bottom: 4px;" class="fa fa-lock fa-lg"></i>';
+        button.innerText = 'Unlock';
     } else {
-        div.innerHTML = '<i style="color: white; position: relative; bottom: 4px;" class="fa fa-unlock-alt fa-lg"></i>';
+        button.innerText = 'Lock';
     }
 
-    div.onclick = function(event) {
+    var div = document.createElement('div');
+    div.setAttribute('class', 'cardActionSep');
+
+    button.onclick = function(event) {
         event.stopPropagation();
 
         var index = lockedItems.findIndex(i => i == itemId);
 
         if (index > -1) {
-            div.innerHTML = '<i style="color: white; position: relative; bottom: 4px;" class="fa fa-unlock-alt fa-lg"></i>';
-            div.removeAttribute('id');
+            button.innerText = 'Lock';
             lockedItems.splice(index, 1);
         } else {
-            div.innerHTML = '<i style="color: white; position: relative; bottom: 4px;" class="fa fa-lock fa-lg"></i>';
-            div.setAttribute('id', 'itemLocked');
+            button.innerText = 'Unlock';
             lockedItems.push(itemId);
         }
 
         localStorage.lockedItems = JSON.stringify(lockedItems);
     };
 
-    node.insertBefore(div, node.lastElementChild);
+    elem.insertBefore(div, elem.children[2]);
+    elem.insertBefore(button, elem.children[2]);
 }
 
 function declineLocked(node) {
@@ -202,7 +247,7 @@ function disableListItems(node) {
         };
 
         var icon = document.createElement('i');
-        icon.setAttribute('style', 'z-index: 1; color: white; position: relative; left: 45px; top: 25px; font-size: 150px;');
+        icon.setAttribute('style', 'z-index: 1; color: white; position: relative; left: 48px; top: 25px; font-size: 150px;');
         icon.setAttribute('class', 'fa fa-lock fa-5x');
 
         var _elem = elem.querySelector('.popupImgH');
@@ -221,7 +266,7 @@ const observer = new MutationObserver(mutations => {
         mutation.addedNodes.forEach(node => {
             if (location.pathname === '/social.html' && node instanceof HTMLScriptElement && node.textContent.length > 1e4) {
                 getSkins(node);
-            } else if (node.className === 'marketCard' && node.querySelector('.cardEst')) {
+            } else if (node.className === 'marketCard' && node.querySelector('.cardCnt') && node.querySelector('.cardActions')) {
                 addGUI(node);
             } else if (node.querySelector && node.querySelector('.offerHolder')) {
                 declineLocked(node);
