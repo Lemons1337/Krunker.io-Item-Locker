@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker.io - Item Locker
 // @namespace    http://tampermonkey.net/
-// @version      0.1.4
+// @version      0.1.5
 // @description  Lock items in your inventory
 // @author       Lemons
 // @match        *://krunker.io/*
@@ -263,6 +263,28 @@ function disableListItems(node) {
 
 function disableQuickSell(node) {
     console.log(node);
+
+    var conf = document.querySelector('#confirmBtn');
+
+    var itemId = conf.onclick.toString().match(/\((\d+),/)[1] | 0;
+    var lockIndex = lockedItems.indexOf(itemId);
+
+    if (lockIndex > -1) {
+        conf.remove();
+
+        var elem = document.querySelector('#declineBtn');
+
+        elem.removeAttribute('onmouseover');
+        elem.removeAttribute('id');
+
+        elem.setAttribute('class', 'pItemButton');
+        elem.setAttribute('style', 'background-color: #2b2b2b; position: relative; margin-top: 30px; margin-bottom: -10px; margin-left: auto; margin-right: auto;');
+
+        elem.style['pointer-events'] = 'none';
+        elem.style.cursor = 'default';
+
+        elem.innerText = 'Item Locked';
+    }
 }
 
 const observer = new MutationObserver(mutations => {
@@ -280,7 +302,7 @@ const observer = new MutationObserver(mutations => {
                 disableTrade(node);
             } else if (node.querySelector && node.querySelector('#postSaleBtn')) {
                 disableListItems(node);
-            } else if (node.className === 'confQSPop') {
+            } else if (node.parentElement.id === 'confQSPop' && (node = node.parentElement)) {
                 disableQuickSell(node);
             }
         });
