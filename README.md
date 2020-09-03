@@ -10,4 +10,4 @@
 # Installation
 - **Install [Tampermonkey](https://www.tampermonkey.net/)**
 - **Once installed you can add the [Script](https://github.com/Lemons1337/Krunker.io-Item-Locker/raw/master/script.user.js)**
-- **Navigate to the [Social Page](https://krunker.io/social.html) and the everything should be working**
+- **Navigate to the [Social Page](https://krunker.io/social.html) and then everything should be working**
